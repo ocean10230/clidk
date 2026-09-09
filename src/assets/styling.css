@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme dark {
+  --color-text: #c5ccda;
+  --color-background: #16171d;
+  --color-border: #2e303a;
+  --color-modal: #1c1e29;
+
+  --color-accent: #2e47d1;
+  --color-accent-bright: #839aff;
+
+  --font-rubik: "Rubik";
+  --font-poppins: "Poppins";
+  --font-lexend: "Lexend Deca";
+
+  --color-money: #79d853;
+  --color-gem: #51ceff;
+  --color-bc: #ffc355;
+}
+
+@layer base {
+  html {
+    @apply bg-background text-text;
+  }
+
+  .center {
+    @apply flex items-center justify-center;
+  }
+
+  button {
+    @apply bg-accent p-2 rounded-md font-semibold disabled:opacity-45 cursor-pointer disabled:cursor-default hover:bg-accent/90 active:bg-accent/80;
+  }
+
+  a.button {
+    @apply bg-accent p-2 rounded-md font-semibold disabled:opacity-45 cursor-pointer disabled:cursor-default hover:bg-accent/90 active:bg-accent/80;
+  }
+}
