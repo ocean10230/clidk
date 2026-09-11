@@ -11,6 +11,7 @@ import { useEffect } from 'react'
 import { useGameSave } from './game_save.tsx'
 import Clicker from './upgrades/clicker.tsx'
 import useFriendsClicker from './upgrades/friends.tsx'
+import useClicker from './upgrades/clicker.tsx'
 
 
 const Header = ({ location }: { location: string }) => {
@@ -51,11 +52,7 @@ const Wrapper = () => {
   const location = useLocation()
   const Game = useGameSave()
 
-  useEffect(() => {
-    return Clicker(Game)
-  }, [Game.upgrade.auto])
-
-  
+  useClicker(Game)
   useFriendsClicker(Game)
 
   return (<div className="center h-screen">

@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react"
 import { SeededRandom } from "../helpers/randomizer"
-
-const sleep = async (ms: number) => new Promise((r) => setTimeout(r, ms))
+import { sleep } from "../helpers/function"
 
 const ClickAsFriend = async (Save: GameSaveState, seededRandom: SeededRandom) => {
     let stealCount = 0
