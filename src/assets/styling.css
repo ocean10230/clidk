@@ -6,6 +6,9 @@
   --color-border: #2e303a;
   --color-modal: #1c1e29;
 
+  --color-modalbg: #191b25;
+  --color-modalbg2: #262836;
+
   --color-accent: #2e47d1;
   --color-accent-bright: #839aff;
 
@@ -33,5 +36,13 @@
 
   a.button {
     @apply bg-accent p-2 rounded-md font-semibold disabled:opacity-45 cursor-pointer disabled:cursor-default hover:bg-accent/90 active:bg-accent/80;
+  }
+
+  *::-webkit-scrollbar {
+    @apply w-1 bg-modalbg2
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-accent
   }
 }

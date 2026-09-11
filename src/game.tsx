@@ -1,18 +1,11 @@
 import { Bot, MousePointer2, MoveHorizontal, Settings, ShoppingCart, DollarSign, Send, Gem, Bitcoin } from "lucide-react"
 
 import { useNavigate } from "react-router-dom"
-import { useGameSave } from "./game_save"
 import { motion } from "framer-motion"
+import { Format } from "./helpers/format"
 
-const Format = (val: number) => {
-  return new Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    maximumFractionDigits: 1, // Controls decimal rounding (e.g., 1.2M vs 1.23M)
-  }).format(val);
-};
-
-function App() {
-  const Game = useGameSave((state) => state)
+function App({ Save }: { Save: GameSaveState }) {
+  const Game = Save
   const navigate = useNavigate()
 
   return (
@@ -52,7 +45,7 @@ function App() {
         <div className="flex flex-col gap-1.5 p-3">
           
           <div className="flex items-center gap-1">
-            <button onClick={() => navigate("/upgrade/")}>
+            <button onClick={() => navigate("/upgrades")}>
               <ShoppingCart />
             </button>
 
@@ -65,7 +58,7 @@ function App() {
             >
               <div className="flex items-center gap-1">
                 <MousePointer2 />
-                <span>x{Game.upgrade.multipler}</span>
+                <span>x{Game.upgrade.multiplier}</span>
               </div>
 
               <div className="w-px bg-white/30 p-px" />
@@ -90,7 +83,7 @@ function App() {
             >
               <div className="text-money flex p-2 pr-1 items-center gap-2 font-rubik">
                 <DollarSign />
-                <span>{Format(Game.data.click)}</span>
+                <span>{Format(Math.floor(Game.data.money))}</span>
               </div>
 
               <div className="w-px bg-white/30 p-px" />
