@@ -1,17 +1,20 @@
 import { createRoot } from 'react-dom/client'
 import './assets/styling.css'
-import App from './game.tsx'
+
 import { BrowserRouter, Route } from 'react-router-dom'
 import { Routes, useLocation, useNavigate } from 'react-router-dom'
 import { ChevronLeft, MousePointer2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useGameSave } from './game_save.tsx'
+
+import App from './game.tsx'
 import SettingsPage from './settings.tsx'
 import Upgrading from './shop.tsx'
-import { useEffect } from 'react'
-import { useGameSave } from './game_save.tsx'
-import Clicker from './upgrades/clicker.tsx'
+
 import useFriendsClicker from './upgrades/friends.tsx'
 import useClicker from './upgrades/clicker.tsx'
+
+import NotificationWrapper, { showToast } from './components/notifications.tsx'
 
 
 const Header = ({ location }: { location: string }) => {
@@ -56,6 +59,7 @@ const Wrapper = () => {
   useFriendsClicker(Game)
 
   return (<div className="center h-screen">
+    <NotificationWrapper />
     <div className="w-105 h-100 flex flex-col justify-between bg-modal border-accent/10 border rounded-md">
       <Header location={location.pathname} />
 

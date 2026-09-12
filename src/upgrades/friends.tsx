@@ -9,7 +9,7 @@ const ClickAsFriend = async (Save: GameSaveState, seededRandom: SeededRandom) =>
         Save.addClick()
 
         // Allow up to 2 thefts per batch instead of 3 (keeps max penalty predictable)
-        if (stealCount < 2 && seededRandom.Float() < 0.05) {
+        if (stealCount < 2 && seededRandom.Float() < 0.02) {
             // 1. Ensure multiplier ratio never drops below 1
             const baseSteal = seededRandom.RangedFloat(20, 40) * Math.max(1, Save.upgrade.multiplier / 5)
             

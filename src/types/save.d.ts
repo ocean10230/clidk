@@ -25,6 +25,14 @@ declare interface Upgrade {
   [key: string]: number
 }
 
+declare interface History {
+  CaughtHacking: number
+  CaughtDDos: number
+  CaughtBotting: number
+
+  AutoClickBroke: numbe
+}
+
 interface GameSaveData {
   metadata: { title: string; person: string; action: string; seed: number; hash: string }
   data: { click: number; money: number; gem: number; crypto: number }

@@ -5,7 +5,7 @@ import { SeededRandom } from './helpers/randomizer'
 // Config table
 //  for base prices and random seed generation offset
 export const UPGRADE_CONFIG: Record<keyof Upgrade, { baseCost: number, seedOffset: number }> = {
-  multiplier: { baseCost: 10, seedOffset: 1 },
+  multiplier: { baseCost: 50, seedOffset: 1 },
   auto: { baseCost: 120, seedOffset: 2 },
   botting: { baseCost: 500, seedOffset: 3 },
   dos: { baseCost: 2000, seedOffset: 4 },
