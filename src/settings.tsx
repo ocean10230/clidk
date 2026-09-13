@@ -85,18 +85,18 @@ export default function SettingsPage() {
 
         <div className="flex flex-col gap-2.5">
             <PerfectFloatingInput
-                placeholder="Tên save game" initialValue=""
-                className="w-full"
+               placeholder="Tên save game" initialValue=""
+               className="w-full"
             />
 
             <div className="flex items-center gap-1">
-                <PerfectFloatingInput placeholder="Ne lô" />
-                <PerfectFloatingInput placeholder="Việc cần làm" />
+               <PerfectFloatingInput placeholder="Ne lô" />
+               <PerfectFloatingInput placeholder="Việc cần làm" />
             </div>
 
             <button className='items-center flex gap-2'>
-                <File/>
-                Lưu save game
+               <File/>
+               Lưu save game
             </button>
         </div>
         

@@ -30,10 +30,11 @@ export const useGameSave = create<GameSaveState>()(
     (set, get) => ({
       metadata: {
         title: "Dih",
-        person: "UnitC3H6S",
+        person: "Danh",
         action: "tập gym",
         seed: 123,
-        hash: "1eb78c0d780f6e7e3f1c8b9d5a"
+        hash: "1eb78c0d780f6e7e3f1c8b9d5a",
+        confirmed: false
       },
 
       data: {
@@ -53,6 +54,21 @@ export const useGameSave = create<GameSaveState>()(
         hacking: 0,
         friends: 0
       },
+
+      history: {
+        broken_auto: 0,
+      },
+
+      broken: {
+        auto: false
+      },
+
+      confirm: () => set((state) => ({
+        metadata: {
+          ...state.metadata,
+          confirmed: true
+        }
+      })),
 
       addClick: () =>
         set((state) => ({
@@ -92,7 +108,7 @@ export const useGameSave = create<GameSaveState>()(
       }
     }),
     {
-      name: 'game_save',
+      name: 'DanhGgym',
       storage: createJSONStorage(() => localStorage),
     }
   )

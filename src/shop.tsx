@@ -83,7 +83,7 @@ export default function Upgrading({ Save }: { Save: GameSaveState }) {
 
         <Upgrade
           name="Auto Clicker"
-          description={"Một cổ máy kiếm tiền, xài hoài dễ hư. Không kêu " + Save.metadata.person + " " + Save.metadata.action + " được"}
+          description={"Một cổ máy kiếm tiền, xài dễ hư. Không kêu " + Save.metadata.person + " " + Save.metadata.action + " được"}
           index={1}
           icon={
             <>

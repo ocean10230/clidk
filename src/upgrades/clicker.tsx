@@ -1,51 +1,61 @@
-import { useEffect, useRef } from "react";
-import { showToast } from "../components/notifications";
-import { sleep } from "../helpers/function";
-import { SeededRandom } from "../helpers/randomizer";
+import { useEffect, useRef } from "react"
+import { showToast } from "../components/notifications"
+import { sleep } from "../helpers/function"
+import { SeededRandom } from "../helpers/randomizer"
 
 export default function useClicker(Save: GameSaveState) {
-    const seededRandomRef = useRef<SeededRandom | null>(null);
-    const activeLoopIdRef = useRef(0);
-
-    // Seed initialization belongs inside useEffect to avoid side-effects on re-render
-    useEffect(() => {
-        if (!seededRandomRef.current && Save.metadata?.seed != null) {
-            seededRandomRef.current = new SeededRandom(Save.metadata.seed + Math.random() * 1000);
-        }
-    }, [Save.metadata?.seed]);
+    const seededRandomRef = useRef<SeededRandom | null>(null)
+    const activeLoopIdRef = useRef(0)
 
     useEffect(() => {
-        if (Save.upgrade.auto < 1) return;
+        seededRandomRef.current = new SeededRandom(Save.metadata.seed + Math.random() * 1000)
+    }, [Save.metadata?.seed])
 
-        // Track each specific loop execution with an incrementing ID
-        const loopId = ++activeLoopIdRef.current;
-        const random = seededRandomRef.current;
-        if (!random) return;
+    useEffect(() => {
+        if (Save.upgrade.auto < 1) return
+
+        const loopId = ++activeLoopIdRef.current
+        const random = seededRandomRef.current
+        if (!random) return
 
         const runLoop = async () => {
-            // Check loopId to guarantee only the latest effect instance runs
             while (loopId === activeLoopIdRef.current) {
-                const isBroke = random.RangedFloat(0, 1) > (1 - 1 / (Save.upgrade.auto + 3.5));
-                const delay = !isBroke 
-                    ? 1000 
-                    : random.RangedFloat(10, 20) * 1000;
+                const isBroke = random.RangedFloat(0, 1) > (1 - 1 / (Save.upgrade.auto + 5))
 
                 if (isBroke) {
-                    showToast(`Auto Clicker hỏng ${(delay / 1000).toFixed(2)} giây`);
+                    Save.broken.auto = true
+                    Save.history.broken_auto++;
                 }
 
-                const clickEarnings = (Save.upgrade.multiplier * random.RangedFloat(0.5, 0.7)) + (Save.upgrade.auto * 0.25);
-                Save.addMoney(Math.max(1, clickEarnings));
+                const delay = !isBroke
+                    ? 1000
+                    : random.RangedFloat(4, 15) * 1000
 
-                await sleep(Math.max(300, delay));
+                
+
+                if (isBroke) {
+                    showToast(`Auto Clicker hỏng ${(delay / 1000).toFixed(2)} giây`)
+                }
+
+                const clickEarnings = (Save.upgrade.multiplier * random.RangedFloat(0.5, 0.7)) + (Save.upgrade.auto * 0.35)
+                Save.addMoney(Math.max(1, clickEarnings))
+                Save.broken.auto = false
+                await sleep(Math.max(300, delay))
             }
-        };
+        }
 
-        runLoop();
+        runLoop()
+    }, [Save.upgrade.auto, Save.upgrade.multiplier])
 
-        // Cleanup immediately invalidates the loop ID to prevent concurrent executions
-        return () => {
-            activeLoopIdRef.current = 0;
-        };
-    }, [Save.upgrade.auto, Save.upgrade.multiplier]);
+    const init = useRef(false)
+
+    useEffect(() => {
+        if (!init.current) {
+            init.current = true
+            return
+        }
+
+        showToast("Friends > Clankers bruh")
+
+    }, [ Save.upgrade.auto ])
 }

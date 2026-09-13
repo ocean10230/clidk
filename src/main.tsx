@@ -14,7 +14,8 @@ import Upgrading from './shop.tsx'
 import useFriendsClicker from './upgrades/friends.tsx'
 import useClicker from './upgrades/clicker.tsx'
 
-import NotificationWrapper, { showToast } from './components/notifications.tsx'
+import NotificationWrapper from './components/notifications.tsx'
+import useMocking from './components/mocker.tsx'
 
 
 const Header = ({ location }: { location: string }) => {
@@ -57,6 +58,7 @@ const Wrapper = () => {
 
   useClicker(Game)
   useFriendsClicker(Game)
+  useMocking(Game)
 
   return (<div className="center h-screen">
     <NotificationWrapper />

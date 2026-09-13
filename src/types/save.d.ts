@@ -25,24 +25,29 @@ declare interface Upgrade {
   [key: string]: number
 }
 
-declare interface History {
-  CaughtHacking: number
-  CaughtDDos: number
-  CaughtBotting: number
+declare interface SaveHistory {
+  broken_auto: number
+  [key: string]: number
+}
 
-  AutoClickBroke: numbe
+declare interface Breaking {
+  auto: boolean
+  [key: string]: boolean
 }
 
 interface GameSaveData {
-  metadata: { title: string; person: string; action: string; seed: number; hash: string }
+  metadata: { title: string; person: string; action: string; seed: number; hash: string; confirmed: boolean }
   data: { click: number; money: number; gem: number; crypto: number }
+  broken: Breaking
+  history: SaveHistory
   upgrade: Upgrade
 }
 
 interface GameSaveActions {
   addClick: () => void
   buyUpgrade: (key: keyof Upgrade) => void
-  addMoney: (money: number) => void
+  addMoney: (money: number) => void,
+  confirm: () => void
 }
 
 declare interface GameSaveState extends GameSaveData, GameSaveActions {

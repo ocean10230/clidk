@@ -36,7 +36,7 @@ function App({ Save }: { Save: GameSaveState }) {
               <p>Bị bắt (DoS): 0 lần</p>
               <p>Bị bắt (Hacking): 0 lần</p>
               <p>Tiền bị trừ: 0 lần</p>
-              <p>Auto-click hỏng: 0 lần</p> 
+              <p>Auto-click hỏng: {Game.history.broken_auto} lần</p> 
             </div>
           </div>
         </div>
