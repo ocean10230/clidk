@@ -6,22 +6,28 @@ import { SeededRandom } from './helpers/randomizer'
 //  for base prices and random seed generation offset
 export const UPGRADE_CONFIG: Record<keyof Upgrade, { baseCost: number, seedOffset: number }> = {
   multiplier: { baseCost: 50, seedOffset: 1 },
-  auto: { baseCost: 120, seedOffset: 2 },
-  botting: { baseCost: 500, seedOffset: 3 },
-  dos: { baseCost: 2000, seedOffset: 4 },
+  auto: { baseCost: 100, seedOffset: 2 },
+  friends: { baseCost: 150, seedOffset: 8 },
+  botting: { baseCost: 200, seedOffset: 3 },
+  dos: { baseCost: 5000, seedOffset: 4 },
   ddos: { baseCost: 7500, seedOffset: 5 },
   crypto: { baseCost: 25000, seedOffset: 6 },
-  hacking: { baseCost: 100000, seedOffset: 7 },
-  friends: { baseCost: 350, seedOffset: 8 }
+  hacking: { baseCost: 50000, seedOffset: 7 },
 }
 
 export const getUpgradeCost = (key: keyof Upgrade, level: number, masterSeed: number): number => {
   const config = UPGRADE_CONFIG[key]
   if (!config) return 0
-  const baseExponentialCost = config.baseCost * Math.pow(1.15, level)
-  const rng = new SeededRandom(masterSeed + config.seedOffset + level * 1000)
-  const varianceMultiplier = rng.RangedFloat(0.95, 1.05)
-  const finalCost = Math.floor(baseExponentialCost * varianceMultiplier)
+
+  // Seed once for the specific upgrade key, not per level
+  const rng = new SeededRandom(masterSeed + config.seedOffset)
+  
+  const baseCostMultiplier = rng.RangedFloat(0.9, 1.05) // Adds overall flavor to this run/key
+  const growthRate = rng.RangedFloat(0.95, 1.1)        // Consistent growth rate for this upgrade
+  
+  const effectiveBase = config.baseCost * baseCostMultiplier
+  const finalCost = Math.floor(effectiveBase * Math.pow(growthRate, level))
+  
   return Math.max(config.baseCost, finalCost)
 }
 
@@ -30,8 +36,8 @@ export const useGameSave = create<GameSaveState>()(
     (set, get) => ({
       metadata: {
         title: "Dih",
-        person: "Danh",
-        action: "tập gym",
+        person: "Unit01",
+        action: "dung an burger nua",
         seed: 123,
         hash: "1eb78c0d780f6e7e3f1c8b9d5a",
         confirmed: false
@@ -105,6 +111,25 @@ export const useGameSave = create<GameSaveState>()(
             money: prev.data.money + money,
           }
         }))
+      },
+
+      setBreak(item: keyof Breaking, v: boolean) {
+        set((prev) => ({
+          broken: {
+            ...prev.broken,
+            [item]: v
+          }
+        }))
+      },
+
+      updateSaveMetadata(title: string, person: string, action: string) {
+        set((prev) => ({
+          metadata: {
+            ...prev.metadata,
+            title, person,
+            action
+          }
+        }))
       }
     }),
     {
@@ -120,6 +145,5 @@ export const UpgradeItem = ({ upgradeKey }: { upgradeKey: keyof Upgrade }) => {
   const level = upgrade[upgradeKey]
   const cost = getUpgradeCost(upgradeKey, level, metadata.seed)
   const canAfford = data.money >= cost
-
   return [canAfford, () => Game.buyUpgrade(upgradeKey)]
 }

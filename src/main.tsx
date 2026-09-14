@@ -1,7 +1,6 @@
-import { createRoot } from 'react-dom/client'
-import './assets/styling.css'
+import './styling.css'
 
-import { BrowserRouter, Route } from 'react-router-dom'
+import { Route } from 'react-router-dom'
 import { Routes, useLocation, useNavigate } from 'react-router-dom'
 import { ChevronLeft, MousePointer2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -13,10 +12,7 @@ import Upgrading from './shop.tsx'
 
 import useFriendsClicker from './upgrades/friends.tsx'
 import useClicker from './upgrades/clicker.tsx'
-
-import NotificationWrapper from './components/notifications.tsx'
 import useMocking from './components/mocker.tsx'
-
 
 const Header = ({ location }: { location: string }) => {
   const navigate = useNavigate()
@@ -52,7 +48,7 @@ const Transition = ({children, location}:{children: React.ReactNode, location: a
   </motion.div>
 </AnimatePresence>
 
-const Wrapper = () => {
+export const GameWrapper = () => {
   const location = useLocation()
   const Game = useGameSave()
 
@@ -60,24 +56,15 @@ const Wrapper = () => {
   useFriendsClicker(Game)
   useMocking(Game)
 
-  return (<div className="center h-screen">
-    <NotificationWrapper />
-    <div className="w-105 h-100 flex flex-col justify-between bg-modal border-accent/10 border rounded-md">
+  return (<div className="w-105 h-100 flex flex-col justify-between bg-modal border-accent/10 border rounded-md">
       <Header location={location.pathname} />
 
       <Transition location={location}>
-        <Routes>
-          <Route path="*" element={<App Save={Game} />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/upgrades" element={<Upgrading Save={Game} /> } />
-        </Routes>
+         <Routes>
+            <Route path="*" element={<App Save={Game} />} />
+            <Route path="/settings" element={<SettingsPage Save={Game} />} />
+            <Route path="/upgrades" element={<Upgrading Save={Game} /> } />
+         </Routes>
       </Transition>
-    </div>
-  </div>)
+   </div>)
 }
-
-createRoot(document.getElementById('root')!).render(
-  <BrowserRouter>
-    <Wrapper/>
-  </BrowserRouter>
-)

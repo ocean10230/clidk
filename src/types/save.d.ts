@@ -48,6 +48,9 @@ interface GameSaveActions {
   buyUpgrade: (key: keyof Upgrade) => void
   addMoney: (money: number) => void,
   confirm: () => void
+  setBreak: (key: keyof Breaking, value: boolean) => void
+
+  updateSaveMetadata: (title: string, person: string, desc: string) => void
 }
 
 declare interface GameSaveState extends GameSaveData, GameSaveActions {

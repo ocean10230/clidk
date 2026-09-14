@@ -63,10 +63,17 @@ function App({ Save }: { Save: GameSaveState }) {
 
               <div className="w-px bg-white/30 p-px" />
 
-              <div className={"flex items-center gap-1 " + (Game.upgrade.auto > 0 ? "" : "text-gray-500")}>
+              <motion.div
+                className="flex items-center gap-1"
+                initial={{ color: "var(--color-gray-500)" }}
+                animate={{ 
+                  color: (Save.upgrade.auto > 0 || !Save.broken.auto) ? "var(--color-text)" : "var(--color-gray-500)" 
+                }}
+                transition={{ duration: 0.5, ease: [0, 0, 0, 1] }}
+              >
                 <Bot />
-                <span>x{Game.upgrade.auto}</span>
-              </div>
+                <span>x{Save.upgrade.auto}</span>
+              </motion.div>
             </div>
           </div>
 

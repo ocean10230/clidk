@@ -2,6 +2,7 @@ import { Bot, DollarSign, Gem, MousePointer, MoveHorizontal, Plus, Recycle } fro
 import { useGameSave, getUpgradeCost } from "./game_save"
 import { Format } from "./helpers/format"
 import type React from "react"
+import { ShopItems } from "./components/shopitems"
 
 interface UpgradeJSXProps {
   name: string
@@ -34,7 +35,7 @@ const Upgrade = ({
         <p className="font-semibold font-rubik text-xl">{name}</p>
       </div>
 
-      <span>{description}</span>
+      <p className="leading-5 font-lexend font-light">{description}</p>
 
       <div className="flex justify-between mt-2 bg-accent-bright/20 rounded-md border-accent/50 border p-1 px-2.5">
         <span className="flex font-semibold gap-1 items-center">
@@ -67,43 +68,11 @@ export default function Upgrading({ Save }: { Save: GameSaveState }) {
   return (
     <div className="h-full w-full flex flex-col gap-2 justify-between">
       <div className="w-full h-full overflow-auto">
-        <Upgrade
-          name="Multiplier"
-          description={"Cộng thêm tiền kiếm được, số lần kêu " + Save.metadata.person + " " + Save.metadata.action + " nhiều hơn mỗi click nhiều hơn"}
-          index={0}
-          icon={
-            <>
-              <MousePointer />
-              <MousePointer className="text-white/20 absolute left-0 bottom-0" />
-              <MousePointer className="text-white/20 absolute top-0 right-0" />
-            </>
-          }
-          upgrade_internal_name="multiplier"
-        />
-
-        <Upgrade
-          name="Auto Clicker"
-          description={"Một cổ máy kiếm tiền, xài dễ hư. Không kêu " + Save.metadata.person + " " + Save.metadata.action + " được"}
-          index={1}
-          icon={
-            <>
-              <Bot/>
-            </>
-          }
-          upgrade_internal_name="auto"
-        />
-
-        <Upgrade
-          name="Bạn bè"
-          description={"Mấy đứa thằng trí cốt vô click phụ, kêu " + Save.metadata.person + " " + Save.metadata.action + " được nhưng tốn mớ tiền để giữ chân"}
-          index={1}
-          icon={
-            <>
-              <Bot/>
-            </>
-          }
-          upgrade_internal_name="friends"
-        />
+        {
+          ShopItems.map((item, index) => (
+            <Upgrade icon={item.icon} name={item.name} description={item.desc.replace("{person}",Save.metadata.person).replace("{act}",Save.metadata.action)} index={index} upgrade_internal_name={item.internal_name} />
+          ))
+        }
       </div>
 
       <FooterData />

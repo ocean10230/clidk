@@ -19,11 +19,13 @@ export default function useClicker(Save: GameSaveState) {
         if (!random) return
 
         const runLoop = async () => {
+            if (Save.broken.auto) Save.setBreak("auto", false)
+
             while (loopId === activeLoopIdRef.current) {
                 const isBroke = random.RangedFloat(0, 1) > (1 - 1 / (Save.upgrade.auto + 5))
 
                 if (isBroke) {
-                    Save.broken.auto = true
+                    Save.setBreak("auto", true)
                     Save.history.broken_auto++;
                 }
 
@@ -39,8 +41,9 @@ export default function useClicker(Save: GameSaveState) {
 
                 const clickEarnings = (Save.upgrade.multiplier * random.RangedFloat(0.5, 0.7)) + (Save.upgrade.auto * 0.35)
                 Save.addMoney(Math.max(1, clickEarnings))
-                Save.broken.auto = false
                 await sleep(Math.max(300, delay))
+                
+                Save.setBreak("auto", false)
             }
         }
 

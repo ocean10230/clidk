@@ -19,60 +19,63 @@ const Expensive = [
 
 const Friends = [
     "Kiệt", "Khang", "Lọ Quốc Khang",
-    "Ocean30", "Ocean102300 (gay)", "Unit01",
-    "U văn đít", "Minh Đăng", "Cô bán cá ngoài chợ",
-    "Duy Minh", "Dui Minh", "Ocean10230", "Ocean102",
-    "Danh Lọ", "Nguyên Lọ", "C3H6S"
+    "Ocean30", "Ocean102300 (unit01 gay)", "Unit01", "🟣🟢",
+    "U văn đít", "Minh Đăng", "Cô bán cá ngoài chợ", "Chú ong Jollibee",
+    "Duy Minh", "Dui Minh", "Ocean10230", "Ocean102", "Master Chef 8/2",
+    "Danh Lọ", "Nguyên Lọ", "C3H6S",
+    "Tungtung"
 ]
 
-const ClickAsFriend = async (Save: GameSaveState, seededRandom: SeededRandom) => {
+const ClickAsFriend = async (
+    Save: GameSaveState, 
+    seededRandom: SeededRandom, 
+    isCancelled: () => boolean
+) => {
     let stealCount = 0
     
     for (let i = 0; i < Save.upgrade.friends; i++) {
+        // Stop execution immediately if effect cleanup was triggered
+        if (isCancelled()) return;
+
         Save.addClick()
 
-        // Allow up to 2 thefts per batch instead of 3 (keeps max penalty predictable)
         if (stealCount < 2 && seededRandom.Float() < 0.02) {
-            // 1. Ensure multiplier ratio never drops below 1
             const baseSteal = seededRandom.RangedFloat(20, 40) * Math.max(1, Save.upgrade.multiplier / 5)
-            
-            // 2. Use percentage discount (e.g. 1.5% off per friend, capped at 60% max discount)
-            const friendDiscount = Math.min(0.60, Save.upgrade.friends * 0.015)
-            const rawSteal = baseSteal * (1 - friendDiscount)
+            const friendDiscount = Math.min(0.50, Save.upgrade.friends * 0.025)
+            const rawSteal = baseSteal * (1 - friendDiscount / seededRandom.RangedInt(2, 5))
             const stealAmount = Math.floor(rawSteal)
-            const expensiveDeduction = seededRandom.RangedFloat(0,1) < 0.1
+            const expensiveDeduction = seededRandom.RangedFloat(0, 1) < 0.1
 
-            const actualDeduction = Math.min(Save.data.money, stealAmount) * (expensiveDeduction ? seededRandom.RangedFloat(2,3.5) : 1)
+            const actualDeduction = Math.min(Save.data.money, stealAmount) * (expensiveDeduction ? seededRandom.RangedFloat(2, 3.5) : seededRandom.RangedFloat(1.5, 2.3))
 
-            
             if (actualDeduction > 0) {
                 Save.addMoney(-actualDeduction)
                 stealCount++
                 console.log(`Friend took $${actualDeduction}!`)
             }
 
-            
             if (actualDeduction > 0) {
+                const name = Friends[Math.floor(Math.random() * Friends.length)] + ": "
+                const deducted = `(-$${Math.floor(actualDeduction)})`
                 if (expensiveDeduction)
                     showToast(
-                        Friends[Math.floor(Math.random() * Friends.length)] + ": " +
-                        Expensive[Math.floor(Math.random() * Expensive.length)]
+                        name +
+                        Expensive[Math.floor(Math.random() * Expensive.length)] + " " + deducted
                     )
                 else
                     showToast(
-                        Friends[Math.floor(Math.random() * Friends.length)] + ": " +
-                        Message[Math.floor(Math.random() * Message.length)]
+                        name +
+                        Message[Math.floor(Math.random() * Message.length)] + " " + deducted
                     )
             }
         }
 
-        await sleep(seededRandom.RangedInt(150, 225))
+        await sleep(seededRandom.RangedInt(100, 200))
     }
 }
 
 export default function useFriendsClicker(Save: GameSaveState) {
     const saveRef = useRef(Save)
-    const loopId = useRef(0)
     const seededRandomRef = useRef<SeededRandom>(null)
 
     saveRef.current = Save
@@ -85,22 +88,33 @@ export default function useFriendsClicker(Save: GameSaveState) {
 
     useEffect(() => {
         if (Save.upgrade.friends === 0 || !seededRandomRef.current) return
-        loopId.current++
 
+        let cancelled = false
         let timeoutId: ReturnType<typeof setTimeout>
-        const currentLoopId = loopId.current
+
         const seededRandom = seededRandomRef.current
         const lv = Save.upgrade.friends
 
         const loop = async () => {
-            if (loopId.current !== currentLoopId) return
-            await ClickAsFriend(saveRef.current, seededRandom).catch(console.error)
+            if (cancelled) return
 
-            const nextInterval =
-            seededRandom.RangedInt(Math.max(150 / lv - (lv/2), 80), 400/(lv+seededRandom.RangedInt(2,5)))
+            await ClickAsFriend(saveRef.current, seededRandom, () => cancelled).catch(console.error)
+
+            if (cancelled) return
+
+            const nextInterval = seededRandom.RangedInt(
+                Math.max(150 / lv - lv / 1.5, 80), 
+                400 / (lv + seededRandom.RangedFloat(1.5, 3))
+            )
+            
             timeoutId = setTimeout(loop, nextInterval)
         }
 
         loop()
-    }, [Save.upgrade.friends, seededRandomRef])
+
+        return () => {
+            cancelled = true
+            clearTimeout(timeoutId)
+        }
+    }, [Save.upgrade.friends, Save.upgrade.multiplier])
 }
