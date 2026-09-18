@@ -1,64 +1,66 @@
 import { useEffect, useRef } from "react"
 import { showToast } from "../components/notifications"
-import { sleep } from "../helpers/function"
 import { SeededRandom } from "../helpers/randomizer"
+import { Mathmax } from "../helpers/math"
+import { GameTick } from "../helpers/ticks"
 
-export default function useClicker(Save: GameSaveState) {
+export default function useClicker(Save: GameSaveState, tick?: GameTick) {
     const seededRandomRef = useRef<SeededRandom | null>(null)
-    const activeLoopIdRef = useRef(0)
+    const accumulatedRef = useRef(0)
+    const nextDelayRef = useRef(1000)
 
     useEffect(() => {
-        seededRandomRef.current = new SeededRandom(Save.metadata.seed + Math.random() * 1000)
+        seededRandomRef.current = new SeededRandom(Save.metadata.seed + 999) // fixed offset, deterministic
     }, [Save.metadata?.seed])
 
     useEffect(() => {
-        if (Save.upgrade.auto < 1) return
-
-        const loopId = ++activeLoopIdRef.current
+        if (!tick) return
         const random = seededRandomRef.current
-        if (!random) return
+        if (Save.upgrade.auto < 1 || !random) return
 
-        const runLoop = async () => {
-            if (Save.broken.auto) Save.setBreak("auto", false)
+        const fireAutoClick = () => {
+            if (Save.broken.auto) {
+                Save.broken.auto = false
+            }
 
-            while (loopId === activeLoopIdRef.current) {
-                const isBroke = random.RangedFloat(0, 1) > (1 - 1 / (Save.upgrade.auto + 5))
+            const isBroke = random.RangedFloat(0, 1) > (1 - 1 / (Save.upgrade.auto + 5))
+            const delay = !isBroke
+                ? 1000
+                : random.RangedFloat(4, 15) * 1000
 
-                if (isBroke) {
-                    Save.setBreak("auto", true)
-                    Save.history.broken_auto++;
-                }
+            if (isBroke) {
+                Save.broken.auto = true
+                Save.history.broken_auto++
+            }
 
-                const delay = !isBroke
-                    ? 1000
-                    : random.RangedFloat(4, 15) * 1000
+            if (isBroke)
+                showToast(`Auto Clicker hỏng ${(delay / 1000).toFixed(2)} giây`)
 
-                
+            const clickEarnings = (Save.upgrade.multiplier * random.RangedFloat(0.5, 0.7)) + (Save.upgrade.auto * 0.35)
+            Save.addMoney(Mathmax(1n, BigInt(Math.round(clickEarnings))))
+            nextDelayRef.current = Math.max(300, delay)
+        }
 
-                if (isBroke) {
-                    showToast(`Auto Clicker hỏng ${(delay / 1000).toFixed(2)} giây`)
-                }
+        const onTick = (e: Event) => {
+            const { elapsedMs } = (e as CustomEvent).detail
+            accumulatedRef.current += elapsedMs
 
-                const clickEarnings = (Save.upgrade.multiplier * random.RangedFloat(0.5, 0.7)) + (Save.upgrade.auto * 0.35)
-                Save.addMoney(Math.max(1, clickEarnings))
-                await sleep(Math.max(300, delay))
-                
-                Save.setBreak("auto", false)
+            while (accumulatedRef.current >= nextDelayRef.current) {
+                accumulatedRef.current -= nextDelayRef.current
+                fireAutoClick()
             }
         }
 
-        runLoop()
-    }, [Save.upgrade.auto, Save.upgrade.multiplier])
+        tick.addEventListener("tick_elapsed", onTick)
+        return () => tick.removeEventListener("tick_elapsed", onTick)
+    }, [Save.upgrade.auto, Save.upgrade.multiplier, tick])
 
     const init = useRef(false)
-
     useEffect(() => {
         if (!init.current) {
             init.current = true
             return
         }
-
         showToast("Friends > Clankers bruh")
-
-    }, [ Save.upgrade.auto ])
+    }, [Save.upgrade.auto])
 }

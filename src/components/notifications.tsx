@@ -5,9 +5,9 @@ const ids: string[] = []
 
 export default function NotificationWrapper() {
     return (
-        <div className="overflow-hidden flex flex-col gap-1 py-3 justify-end items-center pointer-events-none absolute top-0 left-0 w-screen h-screen z-50">
+        <div className="overflow-hidden flex flex-col gap-1 py-3 justify-end items-center absolute top-0 left-0 w-screen h-screen z-50 pointer-events-none">
             <Toaster
-                position="bottom-center"
+                position="bottom-left"
                 toastOptions={{
                     duration: 5000
                 }}
@@ -18,7 +18,8 @@ export default function NotificationWrapper() {
 
 export const showToast = (
     message: string, button?: {
-        title: string
+        title: string,
+        clickable?: boolean,
         onClick: (t: Toast) => void
     }
 ) => {
@@ -27,7 +28,7 @@ export const showToast = (
             {t.visible && (
                 <motion.div
                     key={t.id}
-                    className="pointer-events-auto flex items-center justify-between gap-5 rounded-md bg-modalbg p-2 px-4 border-accent/50 border"
+                    className={"flex items-center justify-between gap-5 rounded-md bg-modalbg/40 backdrop-blur-[1px] p-2 px-4 border-accent/50 border"}
                     initial={{ y: 50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 50, opacity: 0 }}
@@ -47,7 +48,7 @@ export const showToast = (
 
     ids.push(id)
 
-    if (ids.length > 5) {
+    if (ids.length > 3) {
         const oldest = ids.shift()
         toast.dismiss(oldest)
     }

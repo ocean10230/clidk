@@ -31,13 +31,12 @@ declare interface SaveHistory {
 }
 
 declare interface Breaking {
-  auto: boolean
-  [key: string]: boolean
+  [key: keyof Upgrade]: boolean
 }
 
 interface GameSaveData {
   metadata: { title: string; person: string; action: string; seed: number; hash: string; confirmed: boolean }
-  data: { click: number; money: number; gem: number; crypto: number }
+  data: { current_tick: bigint; click: number; money: bigint; gem: number; crypto: number }
   broken: Breaking
   history: SaveHistory
   upgrade: Upgrade
@@ -46,9 +45,10 @@ interface GameSaveData {
 interface GameSaveActions {
   addClick: () => void
   buyUpgrade: (key: keyof Upgrade) => void
-  addMoney: (money: number) => void,
+  addMoney: (money: bigint) => void,
   confirm: () => void
-  setBreak: (key: keyof Breaking, value: boolean) => void
+
+  elapse: () => void
 
   updateSaveMetadata: (title: string, person: string, desc: string) => void
 }

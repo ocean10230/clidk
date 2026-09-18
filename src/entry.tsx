@@ -5,7 +5,6 @@ import { BrowserRouter } from 'react-router-dom'
 import NotificationWrapper from './components/notifications.tsx'
 import { GameWrapper } from './main.tsx'
 
-
 const Wrapper = () => {
   return (<div className="center h-screen">
     <NotificationWrapper />

@@ -31,7 +31,7 @@
   }
 
   button {
-    @apply bg-accent p-2 rounded-md font-semibold disabled:opacity-45 cursor-pointer disabled:cursor-default hover:bg-accent/90 active:bg-accent/80;
+    @apply bg-accent disabled:bg-accent p-2 rounded-md font-semibold disabled:opacity-45 cursor-pointer disabled:cursor-default hover:bg-accent/90 active:bg-accent/80;
   }
 
   a.button {
@@ -44,5 +44,9 @@
 
   *::-webkit-scrollbar-thumb {
     @apply bg-accent
+  }
+
+  .fuck-you-toast {
+    pointer-events: none !important;
   }
 }

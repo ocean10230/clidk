@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react"
 import { SeededRandom } from "../helpers/randomizer"
-import { sleep } from "../helpers/function"
 import { showToast } from "../components/notifications"
+import { Mathmin } from "../helpers/math"
+import { GameTick } from "../helpers/ticks"
 
 const Message = [
     "Xin nha bro 🤑", "Please speed i need this",
@@ -22,61 +23,47 @@ const Friends = [
     "Ocean30", "Ocean102300 (unit01 gay)", "Unit01", "🟣🟢",
     "U văn đít", "Minh Đăng", "Cô bán cá ngoài chợ", "Chú ong Jollibee",
     "Duy Minh", "Dui Minh", "Ocean10230", "Ocean102", "Master Chef 8/2",
-    "Danh Lọ", "Nguyên Lọ", "C3H6S",
-    "Tungtung"
+    "Danh Lọ", "Nguyên Lọ", "C3H6S", "Obama",
+    "Tungtung", "Do 500"
 ]
 
-const ClickAsFriend = async (
+const ClickAsFriend = (
     Save: GameSaveState, 
-    seededRandom: SeededRandom, 
-    isCancelled: () => boolean
+    seededRandom: SeededRandom
 ) => {
-    let stealCount = 0
-    
-    for (let i = 0; i < Save.upgrade.friends; i++) {
-        // Stop execution immediately if effect cleanup was triggered
-        if (isCancelled()) return;
+    // Single execution per tick trigger instead of async looping
+    Save.addClick()
 
-        Save.addClick()
+    // Friend theft logic
+    if (seededRandom.Float() < 0.02) {
+        const baseSteal = seededRandom.RangedFloat(20, 40) * Math.max(1, Save.upgrade.multiplier / 5)
+        const friendDiscount = Math.min(0.50, Save.upgrade.friends * 0.025)
+        const rawSteal = baseSteal * (1 - friendDiscount / seededRandom.RangedInt(2, 5))
+        const stealAmount = Math.floor(rawSteal)
+        const expensiveDeduction = seededRandom.RangedFloat(0, 1) < 0.1
 
-        if (stealCount < 2 && seededRandom.Float() < 0.02) {
-            const baseSteal = seededRandom.RangedFloat(20, 40) * Math.max(1, Save.upgrade.multiplier / 5)
-            const friendDiscount = Math.min(0.50, Save.upgrade.friends * 0.025)
-            const rawSteal = baseSteal * (1 - friendDiscount / seededRandom.RangedInt(2, 5))
-            const stealAmount = Math.floor(rawSteal)
-            const expensiveDeduction = seededRandom.RangedFloat(0, 1) < 0.1
+        const actualDeduction = Mathmin(Save.data.money, BigInt(stealAmount)) * BigInt(
+            Math.floor(expensiveDeduction ? seededRandom.RangedFloat(3, 5) : seededRandom.RangedFloat(1.2, 1.67))
+        )
 
-            const actualDeduction = Math.min(Save.data.money, stealAmount) * (expensiveDeduction ? seededRandom.RangedFloat(2, 3.5) : seededRandom.RangedFloat(1.5, 2.3))
-
-            if (actualDeduction > 0) {
-                Save.addMoney(-actualDeduction)
-                stealCount++
-                console.log(`Friend took $${actualDeduction}!`)
-            }
-
-            if (actualDeduction > 0) {
-                const name = Friends[Math.floor(Math.random() * Friends.length)] + ": "
-                const deducted = `(-$${Math.floor(actualDeduction)})`
-                if (expensiveDeduction)
-                    showToast(
-                        name +
-                        Expensive[Math.floor(Math.random() * Expensive.length)] + " " + deducted
-                    )
-                else
-                    showToast(
-                        name +
-                        Message[Math.floor(Math.random() * Message.length)] + " " + deducted
-                    )
-            }
+        if (actualDeduction > 0n) {
+            Save.addMoney(-actualDeduction)
+            
+            const name = Friends[Math.floor(Math.random() * Friends.length)] + ": "
+            const deducted = `(-$${actualDeduction})`
+            const msgList = expensiveDeduction ? Expensive : Message
+            const text = msgList[Math.floor(Math.random() * msgList.length)]
+            
+            showToast(`${name}${text.replaceAll("{money}", actualDeduction.toString())} ${!text.includes("${money}") ? deducted : ""}`)
         }
-
-        await sleep(seededRandom.RangedInt(100, 200))
     }
 }
 
-export default function useFriendsClicker(Save: GameSaveState) {
+export default function useFriendsClicker(Save: GameSaveState, tick?: GameTick) {
     const saveRef = useRef(Save)
-    const seededRandomRef = useRef<SeededRandom>(null)
+    const seededRandomRef = useRef<SeededRandom | null>(null)
+    const accumulatedRef = useRef(0)
+    const nextIntervalRef = useRef(0)
 
     saveRef.current = Save
 
@@ -87,34 +74,31 @@ export default function useFriendsClicker(Save: GameSaveState) {
     }, [Save.metadata.seed])
 
     useEffect(() => {
-        if (Save.upgrade.friends === 0 || !seededRandomRef.current) return
-
-        let cancelled = false
-        let timeoutId: ReturnType<typeof setTimeout>
-
-        const seededRandom = seededRandomRef.current
+        if (!tick) return;
         const lv = Save.upgrade.friends
+        const seededRandom = seededRandomRef.current
+        if (lv === 0 || !seededRandom) return
 
-        const loop = async () => {
-            if (cancelled) return
+        const rollInterval = () => seededRandom.RangedInt(
+            Math.max(150 / lv, 80),
+            10 / (lv + seededRandom.RangedFloat(1.2, 2))
+        )
 
-            await ClickAsFriend(saveRef.current, seededRandom, () => cancelled).catch(console.error)
+        nextIntervalRef.current = rollInterval()
+        accumulatedRef.current = 0
 
-            if (cancelled) return
+        const onTick = (e: Event) => {
+            const { elapsedMs } = (e as CustomEvent).detail
+            accumulatedRef.current += elapsedMs
 
-            const nextInterval = seededRandom.RangedInt(
-                Math.max(150 / lv - lv / 1.5, 80), 
-                400 / (lv + seededRandom.RangedFloat(1.5, 3))
-            )
-            
-            timeoutId = setTimeout(loop, nextInterval)
+            while (accumulatedRef.current >= nextIntervalRef.current) {
+                accumulatedRef.current -= nextIntervalRef.current
+                ClickAsFriend(saveRef.current, seededRandom)
+                nextIntervalRef.current = rollInterval()
+            }
         }
 
-        loop()
-
-        return () => {
-            cancelled = true
-            clearTimeout(timeoutId)
-        }
-    }, [Save.upgrade.friends, Save.upgrade.multiplier])
+        tick.addEventListener("tick_elapsed", onTick)
+        return () => tick.removeEventListener("tick_elapsed", onTick)
+    }, [Save.upgrade.friends, Save.upgrade.multiplier, tick])
 }

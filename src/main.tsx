@@ -6,13 +6,15 @@ import { ChevronLeft, MousePointer2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useGameSave } from './game_save.tsx'
 
-import App from './game.tsx'
-import SettingsPage from './settings.tsx'
-import Upgrading from './shop.tsx'
+import App from './page/game.tsx'
+import SettingsPage from './page/settings.tsx'
+import Upgrading from './page/shop.tsx'
 
 import useFriendsClicker from './upgrades/friends.tsx'
 import useClicker from './upgrades/clicker.tsx'
 import useMocking from './components/mocker.tsx'
+import { GameTick } from './helpers/ticks.tsx'
+import { useEffect, useRef } from 'react'
 
 const Header = ({ location }: { location: string }) => {
   const navigate = useNavigate()
@@ -51,14 +53,19 @@ const Transition = ({children, location}:{children: React.ReactNode, location: a
 export const GameWrapper = () => {
   const location = useLocation()
   const Game = useGameSave()
+  const TickSystem = useRef<GameTick>(undefined)
 
-  useClicker(Game)
-  useFriendsClicker(Game)
+  useEffect(() => { 
+    TickSystem.current = new GameTick(200, Game)
+    return TickSystem.current.stop
+  }, [])
+
+  useClicker(Game, TickSystem.current)
+  useFriendsClicker(Game, TickSystem.current)
   useMocking(Game)
 
-  return (<div className="w-105 h-100 flex flex-col justify-between bg-modal border-accent/10 border rounded-md">
+  return (<div className="md:w-120 h-130 flex flex-col justify-between bg-modal border-accent/10 border rounded-md">
       <Header location={location.pathname} />
-
       <Transition location={location}>
          <Routes>
             <Route path="*" element={<App Save={Game} />} />

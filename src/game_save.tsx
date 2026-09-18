@@ -5,31 +5,40 @@ import { SeededRandom } from './helpers/randomizer'
 // Config table
 //  for base prices and random seed generation offset
 export const UPGRADE_CONFIG: Record<keyof Upgrade, { baseCost: number, seedOffset: number }> = {
-  multiplier: { baseCost: 50, seedOffset: 1 },
-  auto: { baseCost: 100, seedOffset: 2 },
-  friends: { baseCost: 150, seedOffset: 8 },
-  botting: { baseCost: 200, seedOffset: 3 },
-  dos: { baseCost: 5000, seedOffset: 4 },
-  ddos: { baseCost: 7500, seedOffset: 5 },
-  crypto: { baseCost: 25000, seedOffset: 6 },
-  hacking: { baseCost: 50000, seedOffset: 7 },
+  multiplier: { baseCost: 100, seedOffset: 102 },
+  auto: { baseCost: 150, seedOffset: 52 },
+  friends: { baseCost: 200, seedOffset: 58 },
+  botting: { baseCost: 250, seedOffset: 33 },
+  dos: { baseCost: 5000, seedOffset: 42 },
+  ddos: { baseCost: 7500, seedOffset: 53 },
+  crypto: { baseCost: 25000, seedOffset: 66 },
+  hacking: { baseCost: 50000, seedOffset: 17 },
 }
 
 export const getUpgradeCost = (key: keyof Upgrade, level: number, masterSeed: number): number => {
   const config = UPGRADE_CONFIG[key]
   if (!config) return 0
 
-  // Seed once for the specific upgrade key, not per level
   const rng = new SeededRandom(masterSeed + config.seedOffset)
-  
-  const baseCostMultiplier = rng.RangedFloat(0.9, 1.05) // Adds overall flavor to this run/key
-  const growthRate = rng.RangedFloat(0.95, 1.1)        // Consistent growth rate for this upgrade
+  const baseCostMultiplier = rng.RangedFloat(0.9, 1.5)
+  const growthRate = rng.RangedFloat(0.95, 1.1)
   
   const effectiveBase = config.baseCost * baseCostMultiplier
   const finalCost = Math.floor(effectiveBase * Math.pow(growthRate, level))
   
   return Math.max(config.baseCost, finalCost)
 }
+
+const storage = createJSONStorage(() => localStorage, {
+  reviver: (_, value) => {
+    if (typeof value === 'string' && /^\d+n$/.test(value)) {
+      return BigInt(value.slice(0, -1))
+    }
+    return value
+  },
+  replacer: (_, value) =>
+    typeof value === 'bigint' ? `${value.toString()}n` : value,
+})
 
 export const useGameSave = create<GameSaveState>()(
   persist(
@@ -45,9 +54,11 @@ export const useGameSave = create<GameSaveState>()(
 
       data: {
         click: 0,
-        money: 100,
+        money: 1200n,
         gem: 0,
-        crypto: 0
+        crypto: 0,
+
+        current_tick: 0n
       },
 
       upgrade: {
@@ -81,20 +92,20 @@ export const useGameSave = create<GameSaveState>()(
           data: {
             ...state.data,
             click: state.data.click + state.upgrade.multiplier,
-            money: state.data.money + state.upgrade.multiplier // fixed spelling
+            money: state.data.money + BigInt(state.upgrade.multiplier) // fixed spelling
           }
         })),
 
       buyUpgrade: (key: keyof Upgrade) => {
         const state = get()
         const currentLevel = state.upgrade[key]
-        const cost = getUpgradeCost(key, currentLevel, state.metadata.seed)
+        const cost = BigInt(getUpgradeCost(key, currentLevel, state.metadata.seed))
 
         if (state.data.money >= cost) {
           set((prev) => ({
             data: {
               ...prev.data,
-              money: prev.data.money - cost,
+              money: BigInt(prev.data.money - cost),
             },
             upgrade: {
               ...prev.upgrade,
@@ -108,16 +119,7 @@ export const useGameSave = create<GameSaveState>()(
         set((prev) => ({
           data: {
             ...prev.data,
-            money: prev.data.money + money,
-          }
-        }))
-      },
-
-      setBreak(item: keyof Breaking, v: boolean) {
-        set((prev) => ({
-          broken: {
-            ...prev.broken,
-            [item]: v
+            money: prev.data.money + BigInt(money),
           }
         }))
       },
@@ -130,11 +132,13 @@ export const useGameSave = create<GameSaveState>()(
             action
           }
         }))
-      }
+      },
+
+      elapse() { set((p) => ({ data: {...p.data,current_tick:p.data.current_tick} })) }
     }),
     {
       name: 'DanhGgym',
-      storage: createJSONStorage(() => localStorage),
+      storage
     }
   )
 )

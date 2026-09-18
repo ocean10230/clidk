@@ -1,4 +1,4 @@
-import { Bot, MousePointer } from "lucide-react"
+import { Bot, Computer, MousePointer } from "lucide-react"
 
 export const ShopItems = [
     {
@@ -27,8 +27,8 @@ export const ShopItems = [
     },
     {
         name: "DoS",
-        desc: "Một cổ máy được thiết kế để spam rác về \"server\" của game để làm server lỗi (tăng click). Đừng kỳ vọng nhiều vì nó chỉ là 1 cái máy",
-        icon: <Bot />,
+        desc: "Một cổ máy được thiết kế để spam server của game để làm server lỗi (x1.5-2.5 $)",
+        icon: <Computer />,
         internal_name: "dos"
     }
 ]

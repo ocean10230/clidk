@@ -2,7 +2,8 @@ import { Bot, MousePointer2, MoveHorizontal, Settings, ShoppingCart, DollarSign,
 
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { Format } from "./helpers/format"
+import { Format, PreserveFormat } from "../helpers/format"
+
 
 function App({ Save }: { Save: GameSaveState }) {
   const Game = Save
@@ -21,7 +22,7 @@ function App({ Save }: { Save: GameSaveState }) {
               className="relative"
               key={Game.data.click}
             >
-              {Game.data.click} lần
+              {PreserveFormat(Game.data.click)} lần
             </motion.span>
             {" "}
             mà {Game.metadata.person} vẫn chưa nghe
@@ -43,14 +44,19 @@ function App({ Save }: { Save: GameSaveState }) {
         
 
         <div className="flex flex-col gap-1.5 p-3">
+          <button className="hidden max-[500px]:block w-full" onClick={Game.addClick}>
+            {Game.metadata.person}, { Game.metadata.action }
+          </button>
+
           
           <div className="flex items-center gap-1">
-            <button onClick={() => navigate("/upgrades")}>
+            <button className="max-[500px]:w-full flex items-center gap-2 font-medium" onClick={() => navigate("/upgrades")}>
               <ShoppingCart />
+              <p className="hidden max-[500px]:block">Buy upgrades</p>
             </button>
 
-            <button className="w-full" onClick={() => Game.addClick()}>
-              { Game.metadata.action.slice(0,1).toLocaleUpperCase() + Game.metadata.action.slice(1) } đi {Game.metadata.person}
+            <button className="w-full max-[500px]:hidden" onClick={Game.addClick}>
+              {Game.metadata.person}, { Game.metadata.action }
             </button>
 
             <div className="flex items-center justify-between gap-2.5
@@ -67,7 +73,7 @@ function App({ Save }: { Save: GameSaveState }) {
                 className="flex items-center gap-1"
                 initial={{ color: "var(--color-gray-500)" }}
                 animate={{ 
-                  color: (Save.upgrade.auto > 0 || !Save.broken.auto) ? "var(--color-text)" : "var(--color-gray-500)" 
+                  color: !Save.broken.auto ? "var(--color-text)" : "var(--color-gray-500)" 
                 }}
                 transition={{ duration: 0.5, ease: [0, 0, 0, 1] }}
               >
@@ -81,8 +87,8 @@ function App({ Save }: { Save: GameSaveState }) {
             <button className="button" onClick={() => navigate("/settings")}>
               <Settings />
             </button>
-            <button><MoveHorizontal /></button>
             <button><Send/></button>
+            <button><MoveHorizontal /></button>
 
 
             <div className="w-full flex items-center justify-between gap-1
@@ -90,7 +96,7 @@ function App({ Save }: { Save: GameSaveState }) {
             >
               <div className="text-money flex p-2 pr-1 items-center gap-2 font-rubik">
                 <DollarSign />
-                <span>{Format(Math.floor(Game.data.money))}</span>
+                <span>{Format(Game.data.money)}</span>
               </div>
 
               <div className="w-px bg-white/30 p-px" />

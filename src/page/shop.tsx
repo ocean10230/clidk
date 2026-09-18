@@ -1,8 +1,8 @@
-import { Bot, DollarSign, Gem, MousePointer, MoveHorizontal, Plus, Recycle } from "lucide-react"
-import { useGameSave, getUpgradeCost } from "./game_save"
-import { Format } from "./helpers/format"
+import { DollarSign, Gem, MoveHorizontal, Plus } from "lucide-react"
+import { useGameSave, getUpgradeCost } from "../game_save"
+import { Format } from "../helpers/format"
 import type React from "react"
-import { ShopItems } from "./components/shopitems"
+import { ShopItems } from "../components/shopitems"
 
 interface UpgradeJSXProps {
   name: string
@@ -47,16 +47,13 @@ const Upgrade = ({
         </span>
 
         <div className="flex gap-1">
-          <button className="p-1.25">
-            <Recycle className="size-4.5" />
-          </button>
-
           <button
-            className="p-1.25 disabled:opacity-50"
+            className="px-2 flex items-center font-poppins font-normal gap-1 p-1.25 disabled:opacity-50"
             disabled={!canAfford}
             onClick={() => Game.buyUpgrade(upgrade_internal_name)}
           >
             <Plus className="size-4.5" />
+            Mua
           </button>
         </div>
       </div>
