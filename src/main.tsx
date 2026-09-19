@@ -9,10 +9,12 @@ import { useGameSave } from './game_save.tsx'
 import App from './page/game.tsx'
 import SettingsPage from './page/settings.tsx'
 import Upgrading from './page/shop.tsx'
+import Exchange from './page/exchange.tsx'
 
 import useFriendsClicker from './upgrades/friends.tsx'
 import useClicker from './upgrades/clicker.tsx'
 import useMocking from './components/mocker.tsx'
+
 import { GameTick } from './helpers/ticks.tsx'
 import { useEffect, useRef } from 'react'
 
@@ -71,7 +73,8 @@ export const GameWrapper = () => {
             <Route path="*" element={<App Save={Game} />} />
             <Route path="/settings" element={<SettingsPage Save={Game} />} />
             <Route path="/upgrades" element={<Upgrading Save={Game} /> } />
-         </Routes>
+            <Route path="/exchange" element={<Exchange Save={Game}  />} />
+	 </Routes>
       </Transition>
    </div>)
 }

@@ -46,6 +46,8 @@
     @apply bg-accent
   }
 
+  * { @apply transition-colors duration-50 ease-out }
+
   .fuck-you-toast {
     pointer-events: none !important;
   }

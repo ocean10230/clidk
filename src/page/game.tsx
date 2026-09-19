@@ -88,7 +88,7 @@ function App({ Save }: { Save: GameSaveState }) {
               <Settings />
             </button>
             <button><Send/></button>
-            <button><MoveHorizontal /></button>
+            <button onClick={() => navigate("/exchange")}><MoveHorizontal /></button>
 
 
             <div className="w-full flex items-center justify-between gap-1
