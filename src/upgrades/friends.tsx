@@ -42,7 +42,7 @@ const ClickAsFriend = (
         const stealAmount = Math.floor(rawSteal)
         const expensiveDeduction = seededRandom.RangedFloat(0, 1) < 0.1
 
-        const actualDeduction = Mathmin(Save.data.money, BigInt(stealAmount)) * BigInt(
+        const actualDeduction = Mathmin(Save.data.Money, BigInt(stealAmount)) * BigInt(
             Math.floor(expensiveDeduction ? seededRandom.RangedFloat(3, 5) : seededRandom.RangedFloat(1.2, 1.67))
         )
 

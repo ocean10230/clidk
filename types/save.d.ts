@@ -36,10 +36,23 @@ declare interface Breaking {
 
 interface GameSaveData {
   metadata: { title: string; person: string; action: string; seed: number; hash: string; confirmed: boolean }
-  data: { current_tick: bigint; click: number; money: bigint; gem: number; crypto: number }
+  data: {
+    current_tick: bigint;
+    click: bigint;
+    Gem: number,
+    BTC: number,
+    Money: bigint
+  }
   broken: Breaking
   history: SaveHistory
   upgrade: Upgrade
+
+  prices: {
+    Gem: number,
+    BTC: number,
+    Money: 1
+    [key: string]: number
+  },
 }
 
 interface GameSaveActions {

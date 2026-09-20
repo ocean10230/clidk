@@ -31,9 +31,9 @@ export const getUpgradeCost = (key: keyof Upgrade, level: number, masterSeed: nu
 
 const storage = createJSONStorage(() => localStorage, {
   reviver: (_, value) => {
-    if (typeof value === 'string' && /^\d+n$/.test(value)) {
+    if (typeof value === 'number' && ["click", "money"].includes(_)) return BigInt(value)
+    if (typeof value === 'string' && /^\d+n$/.test(value))
       return BigInt(value.slice(0, -1))
-    }
     return value
   },
   replacer: (_, value) =>
@@ -52,11 +52,17 @@ export const useGameSave = create<GameSaveState>()(
         confirmed: false
       },
 
+      prices: {
+        Gem: 1000,
+        BTC: 90_000,
+        Money: 1
+      },
+
       data: {
-        click: 0,
-        money: 1200n,
-        gem: 0,
-        crypto: 0,
+        click: 0n,
+        Money: 1200n,
+        Gem: 0,
+        BTC: 0,
 
         current_tick: 0n
       },
@@ -91,8 +97,8 @@ export const useGameSave = create<GameSaveState>()(
         set((state) => ({
           data: {
             ...state.data,
-            click: state.data.click + state.upgrade.multiplier,
-            money: state.data.money + BigInt(state.upgrade.multiplier) // fixed spelling
+            click: state.data.click + BigInt(state.upgrade.multiplier),
+            money: state.data.Money + BigInt(state.upgrade.multiplier) // fixed spelling
           }
         })),
 
@@ -101,11 +107,11 @@ export const useGameSave = create<GameSaveState>()(
         const currentLevel = state.upgrade[key]
         const cost = BigInt(getUpgradeCost(key, currentLevel, state.metadata.seed))
 
-        if (state.data.money >= cost) {
+        if (state.data.Money >= cost) {
           set((prev) => ({
             data: {
               ...prev.data,
-              money: BigInt(prev.data.money - cost),
+              money: BigInt(prev.data.Money - cost),
             },
             upgrade: {
               ...prev.upgrade,
@@ -119,7 +125,7 @@ export const useGameSave = create<GameSaveState>()(
         set((prev) => ({
           data: {
             ...prev.data,
-            money: prev.data.money + BigInt(money),
+            money: prev.data.Money + BigInt(money),
           }
         }))
       },
@@ -148,6 +154,6 @@ export const UpgradeItem = ({ upgradeKey }: { upgradeKey: keyof Upgrade }) => {
   const { data, upgrade, metadata } = Game
   const level = upgrade[upgradeKey]
   const cost = getUpgradeCost(upgradeKey, level, metadata.seed)
-  const canAfford = data.money >= cost
+  const canAfford = data.Money >= cost
   return [canAfford, () => Game.buyUpgrade(upgradeKey)]
 }

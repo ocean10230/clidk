@@ -24,7 +24,7 @@ const Upgrade = ({
   // Calculate current price based on upgrade level & seed
   const currentLevel = Game.upgrade[upgrade_internal_name] ?? 0
   const price = getUpgradeCost(upgrade_internal_name, currentLevel, Game.metadata.seed)
-  const canAfford = Game.data.money >= price
+  const canAfford = Game.data.Money >= price
 
   return (
     <div className={"p-3 border-y border-accent-bright/30 " + (index % 2 === 0 ? "bg-modalbg" : "bg-modalbg2")}>
@@ -79,7 +79,7 @@ export default function Upgrading({ Save }: { Save: GameSaveState }) {
 
 const FooterData = () => {
   const Game = useGameSave()
-  const money = Game.data.money
+  const money = Game.data.Money
 
   return (
     <div className="flex justify-between items-center bg-accent/20 p-2.5 rounded-t-md border-accent-bright/50 border">
@@ -96,7 +96,7 @@ const FooterData = () => {
 
         <div className="text-gem pl-1 flex p-2 items-center gap-2 font-rubik">
           <Gem />
-          <span>{Format(Game.data.gem)}</span>
+          <span>{Format(Game.data.Gem)}</span>
         </div>
       </div>
 

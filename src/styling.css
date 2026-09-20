@@ -23,7 +23,7 @@
 
 @layer base {
   html {
-    @apply bg-background text-text;
+    @apply bg-background text-text transition-colors duration-250 ease-in-out;
   }
 
   .center {
@@ -45,6 +45,8 @@
   *::-webkit-scrollbar-thumb {
     @apply bg-accent
   }
+
+  input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { @apply hidden }
 
   * { @apply transition-colors duration-50 ease-out }
 

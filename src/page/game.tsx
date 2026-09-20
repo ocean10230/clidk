@@ -84,7 +84,7 @@ function App({ Save }: { Save: GameSaveState }) {
           </div>
 
           <div className="flex items-center gap-1">
-            <button className="button" onClick={() => navigate("/settings")}>
+            <button onClick={() => navigate("/settings")}>
               <Settings />
             </button>
             <button><Send/></button>
@@ -96,21 +96,21 @@ function App({ Save }: { Save: GameSaveState }) {
             >
               <div className="text-money flex p-2 pr-1 items-center gap-2 font-rubik">
                 <DollarSign />
-                <span>{Format(Game.data.money)}</span>
+                <span>{Format(Game.data.Money)}</span>
               </div>
 
               <div className="w-px bg-white/30 p-px" />
 
               <div className="text-gem pl-1 flex p-2 items-center gap-2 font-rubik">
                  <Gem/>
-                 <span>{Format(Game.data.gem)}</span>
+                 <span>{Format(Game.data.Gem)}</span>
               </div>
 
               <div className="w-px bg-white/30 p-px" />
 
               <div className="text-bc pl-1 flex p-2 items-center gap-2 font-rubik">
                  <Bitcoin/>
-                 <span>{Format(Game.data.crypto)}</span>
+                 <span>{Format(Game.data.BTC)}</span>
               </div>
             </div>
           </div>
